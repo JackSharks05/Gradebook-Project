@@ -31,6 +31,7 @@ public class Student{
     }
     return -1;
   }
+  public void addClass(Class c){this.classList.add(c);}
   public void setClassList(ArrayList<Class> classes){this.classList = classes;}
   public String getName(){return this.name;}
   public void setName(String input){this.name = input;}

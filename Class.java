@@ -3,7 +3,7 @@ public class Class{
   String name;
   ArrayList<Student> roster;
   ArrayList<Assignment> assignments = new ArrayList<Assignment>();
-  ArrayList<String> assignmentsandweights; //type, weight
+  ArrayList<String> assignmentsandweights = new ArrayList<String>(); //type, weight
   ArrayList<String> assignmentTypes = new ArrayList<String>();
   ArrayList<Integer> assignmentWeights = new ArrayList<Integer>();
 
@@ -21,6 +21,7 @@ public class Class{
   public Class(String name, ArrayList<Student> roster, ArrayList<String> weightkey){
     this.name = name;
     this.roster = roster;
+    this.assignmentsandweights = weightkey;
     for (int i = 0; i < weightkey.size(); i++){
       // System.out.println(weightkey.get(i));
       String type = weightkey.get(i).substring(0,weightkey.get(i).indexOf(","));
@@ -56,9 +57,8 @@ public class Class{
   public String toString(){
     String str = this.name + ";";
     for (int s = 0; s < roster.size(); s++){str += (roster.get(s).getName() + ",");}
-    // str += ";";
-    // str += assignmentsandweights.get(0);
-    // for (int a = 1; a < assignmentsandweights.size(); a++){str += ("-" + assignmentsandweights.get(a));}
+    str += ";";
+    for (int a = 0; a < assignmentsandweights.size(); a++){str += (assignmentsandweights.get(a) + "-");}
     return str.substring(0, str.length() - 1);
   }
 }

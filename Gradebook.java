@@ -57,6 +57,7 @@ public static void classCreateGUI(String name){//create class
   while (!stop){
     input = classScanner.nextLine();
     if (input.equalsIgnoreCase("stop")){stop = true;}
+    else if (findStudent(input) != -1){localroster.add(globalroster.get(findStudent(input)));globalroster.get(findStudent(input)).addClass(classes.get(findClass(localname)));}
     else if (findStudentInClass(localroster,input) == -1){Student newStudent = new Student(input);localroster.add(newStudent);globalroster.add(newStudent);}
     else {System.out.print("Student already exists in class. Please find a different student: ");}
   }
@@ -364,7 +365,9 @@ public static void save(){
       System.out.println("Error opening Class List file: " + e);
       System.out.println("Could not save.");
   }
-  for (Class c : classes){classPrinter.println(c);}
+  for (Class c : classes){classPrinter.println(c);System.out.println(c);}
+  System.out.println();
+  System.out.println();
   try {
       studentWriter = new FileWriter("GlobalRoster.gdbk", false);
       studentPrinter = new PrintWriter(studentWriter);
@@ -372,7 +375,7 @@ public static void save(){
       System.out.println("Error opening Global Roster file: " + e);
       System.out.println("Could not save.");
   }
-  for (Student s : globalroster){studentPrinter.println(s);}
+  for (Student s : globalroster){studentPrinter.println(s);System.out.println(s);}
   try {
       assignmentWriter = new FileWriter("AssignmentsList.gdbk", false);
       assignmentPrinter = new PrintWriter(assignmentWriter);
@@ -380,9 +383,12 @@ public static void save(){
       System.out.println("Error opening Assignments List file: " + e);
       System.out.println("Could not save.");
   }
+  System.out.println();
+  System.out.println();
   for (Class c : classes){
     for (int i = 0; i < c.getAssignments().size(); i++){
-      assignmentPrinter.print(c.getAssignments().get(i));
+      assignmentPrinter.println(c.getAssignments().get(i));
+      System.out.println(c.getAssignments().get(i));
     }
   }
   try {
@@ -392,8 +398,11 @@ public static void save(){
       System.out.println("Error opening gradebook: " + e);
       System.out.println("Could not save.");
   }
+  System.out.println();
+  System.out.println();
   for (Grade g : gradelist){
     assignmentPrinter.println(g);
+    System.out.println(g);
   }
 
   try {
