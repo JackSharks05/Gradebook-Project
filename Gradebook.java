@@ -30,7 +30,9 @@ public static void startGUI(boolean repeating){
   System.out.print("Anything else? ");
   if (isYes(guiScanner.nextLine())){startGUI(true);} else {
   System.out.print("Would you like to save all changes made? ");
-  if (isYes(guiScanner.nextLine())){save();}
+  if (isYes(guiScanner.nextLine())){save();}else{System.out.println("\033[31mRecent changes were not saved.\033[0m");}
+  randomizedLoading("\033[36mShutting down GradebookOS");
+  System.out.println("\033[H\033[2J\033[0m");
   System.exit(1);
 }
 }
@@ -50,10 +52,10 @@ public static void classCreateGUI(String name){//create class
   while (!stop){
     input = classScanner.nextLine();
     if (-1 == findClass(input)){localname = input;stop = true;}
-    else{System.out.print("Class already exists. Please use a different name: ");}
+    else{System.out.print("\033[31mClass already exists.\033[0m Please use a different name: ");}
   }
   }
-  System.out.println("List students' names: (\"stop\" to stop)");
+  System.out.println("List students' names: (\033[31m\"stop\"\033[0m to stop)");
   stop = false;
   while (!stop){
     input = classScanner.nextLine();
@@ -62,29 +64,29 @@ public static void classCreateGUI(String name){//create class
       localroster.add(globalroster.get(findStudent(globalroster,input)));
       }
     else if (findStudent(localroster,input) == -1){Student newStudent = new Student(input);localroster.add(newStudent);globalroster.add(newStudent);}
-    else {System.out.print("Student already exists in class. Please find a different student: ");}
+    else {System.out.print("\033[31mStudent already exists in class.\033[0m Please find a different student: ");}
   }
   System.out.println("List assignment types (type, weight):");
   int counter = 0;
   stop = false;
   while (!stop){
-    System.out.println("The rest of the class's assignments should add up to " + (100 - counter) + "% of the grade.");
+    System.out.println("The rest of the class's assignments should add up to \033[35m" + (100 - counter) + "%\033[0m of the grade.");
     input = classScanner.nextLine();
     int weight = 0;
     try {
         weight = Integer.parseInt((input.substring(input.indexOf(",") + 1,input.length())).replaceAll(" ", ""));
     } catch(NumberFormatException e) {
-        System.out.print("Error with your input. Please try again: ");
+        System.out.print("\033[31mError with your input: ");
     }
-    if (input.indexOf(",") == -1){System.out.print("Your input should be formatted as (type, weight). Please try again: ");}
-    else if (!(weight > 0)){System.out.print("The weight should be a positive integer: ");}
-    else if (weight + counter > 100){System.out.print("Weight exceeds limit. Please try again: ");}
+    if (input.indexOf(",") == -1){System.out.print("Your input should be formatted as (type, weight).\033[0m Please try again: ");}
+    else if (!(weight > 0)){System.out.print("The weight should be a positive integer:\033[0m ");}
+    else if (weight + counter > 100){System.out.print("Weight exceeds limit.\033[0m Please try again: ");}
     else {localassignmentsandweights.add(input);counter += weight;}
     if (counter == 100){stop = true;}
   }
   classes.add(new Class(localname,localroster,localassignmentsandweights));
   for (Student s : localroster){globalroster.get(findStudent(globalroster,s.getName())).addClass(classes.get(findClass(localname)));}
-  System.out.print("Class " + localname + " is made. Would you like to make another class? ");
+  System.out.print("\033[32mClass " + localname + " is made.\033[0m Would you like to make another class? ");
   if(!isYes(classScanner.nextLine())){done = true;}
   }
 }
@@ -101,21 +103,21 @@ public static void studentCreateGUI(String externalinput){
     while (!stop){
       input = studentScanner.nextLine();
       if (findStudent(globalroster,input) == -1){name = input;stop = true;}
-      else {System.out.println("Student already exists. Please use a different name: ");}
+      else {System.out.println("\033[31mStudent already exists.\033[0m Please use a different name: ");}
     }
   }
-    System.out.println("List the id('s) of the class(es) the student is in (\"stop\" to stop):");
+    System.out.println("List the id('s) of the class(es) the student is in (\033[31m\"stop\"\033[0m to stop):");
     stop = false;
     while (!stop){
       input = studentScanner.nextLine();
       if (input.equalsIgnoreCase("stop")){stop = true;}
-      else if (findClass(input) == -1){System.out.println("Could not find class. Please try again: ");}
+      else if (findClass(input) == -1){System.out.println("\033[31mCould not find class.\033[0m Please try again: ");}
       else {classList.add(classes.get(findClass(input)));}
     }
     Student newStudent = new Student(name, classList);
     globalroster.add(newStudent);
     for (Class c : classList){c.addStudent(newStudent);}
-    System.out.print("Student " + name + " is made. Would you like to make another student? ");
+    System.out.print("\033[32mStudent " + name + " is made.\033[0m Would you like to make another student? ");
     if(!isYes(studentScanner.nextLine())){done = true;}
   }
 }
@@ -133,7 +135,7 @@ public static void assignmentGUI(){
       boolean stop = false;
       while (!stop){
         inclass = assignmentScanner.nextLine();
-        if (findClass(inclass) == -1){System.out.println("Could not find class. Please try again: ");}
+        if (findClass(inclass) == -1){System.out.println("\033[31mCould not find class.\033[0m Please try again: ");}
         else {localclass = classes.get(findClass(inclass));stop = true;}
       }
       System.out.print("Assignment name: ");
@@ -141,17 +143,17 @@ public static void assignmentGUI(){
       while (!stop){
         input = assignmentScanner.nextLine();
         if (-1 == findAssignment(localclass,input)){name = input;stop = true;}
-        else{System.out.println("Assignment already exists. Please use a different name: ");}
+        else{System.out.println("\033[31mAssignment already exists.\033[0m Please use a different name: ");}
       }
       System.out.print("Assignment type: ");
       stop = false;
       while (!stop){
         input = assignmentScanner.nextLine();
-        if (-1 == findAssignmentType(localclass,input)){System.out.print("Assignment type doesn't exist. Please try again: ");}
+        if (-1 == findAssignmentType(localclass,input)){System.out.print("\033[31mAssignment type doesn't exist.\033[0m Please try again: ");}
         else{type = input;stop = true;}
       }
       (classes.get(findClass(inclass))).addAssignment(new Assignment(name,type,(classes.get(findClass(inclass)))));
-      System.out.print("Assignment " + name + " is made. Would you like to make another assignment? ");
+      System.out.print("\033[32mAssignment " + name + " is made.\033[0m Would you like to make another assignment? ");
       if(!isYes(assignmentScanner.nextLine())){done = true;}
   }
 }
@@ -165,7 +167,7 @@ public static void classEditGUI(){
   while (!stop){
     input = classScanner.nextLine();
     if (-1 == findClass(input)){
-      System.out.print("Cannot find class. Would you like to create a new class of this name?: ");
+      System.out.print("\033[31mCannot find class.\033[0m Would you like to create a new class of this name?: ");
       creatingClass = isYes(classScanner.nextLine());
       if (creatingClass){stop = true;}else{System.out.print("Which class would you like to edit? ");}
     }
@@ -181,7 +183,7 @@ public static void classEditGUI(){
     System.out.print("Would you like to remove any students? ");
     if (isYes(classScanner.nextLine())){
       for (Student s : localclass.getRoster()){
-        System.out.print("Remove " + s.getSurname() + ", " + s.getFirstName() + "? ");
+        System.out.print("\033[31mRemove " + s.getSurname() + ", " + s.getFirstName() + "?\033[0m ");
         if (isYes(classScanner.nextLine())){
           localclass.removeStudent(findStudent(localclass.getRoster(),s.getName()));
         }
@@ -198,7 +200,9 @@ public static void studentEditGUI(Class c){
   Student localstudent = new Student();
   Class localclass = c;
   Assignment localassignment = new Assignment();
-  int localgrade = -1;
+  Double localgrade = -1.0;
+  String newname = "";
+  Double newgrade = -1.0;
   System.out.print("Which student would you like to edit? ");
   boolean stop = false;
   boolean creatingStudent = false;
@@ -206,11 +210,11 @@ public static void studentEditGUI(Class c){
   while (!stop){
     input = studentScanner.nextLine();
     if (-1 == findStudent(globalroster,input)){
-      System.out.print("Cannot find student. Would you like to create a new student of this name?: ");
+      System.out.print("\033[31mCannot find student.\033[0m Would you like to create a new student of this name?: ");
       creatingStudent = isYes(studentScanner.nextLine());
       if (creatingStudent){stop = true;}else{System.out.print("Which student would you like to edit? ");}
     }
-    else{localstudent = globalroster.get(findStudent(globalroster,input));stop = true;}
+    else{localstudent = globalroster.get(findStudent(globalroster,input));newname=localstudent.getName();stop = true;}
   }
   if (creatingStudent){studentCreateGUI(input);} else {
     System.out.print("Would you like to change the name of the student? ");
@@ -219,9 +223,10 @@ public static void studentEditGUI(Class c){
       System.out.print("Current name: " + localstudent.getName() +". New name: ");
       while (!stop){
         input = studentScanner.nextLine();
-        if (findStudent(globalroster,input) == -1){localstudent.setName(input);stop = true;}
-        else {System.out.println("Student with this name already exists. Please use a different name: ");}
+        if (findStudent(globalroster,input) == -1){newname = input;stop = true;}
+        else {System.out.println("\033[31mStudent with this name already exists.\033[0m Please use a different name: ");}
       }
+      System.out.println("\033[32mName was successfully changed.\033[0m");
     }
     System.out.print("Would you like to edit the student's grade? ");
     if (isYes(studentScanner.nextLine())){
@@ -231,42 +236,46 @@ public static void studentEditGUI(Class c){
       while (!stop){
         input = studentScanner.nextLine();
         if (-1 == findClass(input)){
-          System.out.print("Cannot find class. Please try again: ");
-        } else if (!(isStudentinClass(input,localstudent))){
-          System.out.print("Student is not in class. Would you like to add " + localstudent.getName() + " to this class? ");
+          System.out.print("\033[31mCannot find class.\033[0m Please try again: ");
+        } else if (!(isStudentinClass(input,newname))){
+          System.out.print("\033[31mStudent is not in class.\033[0m Would you like to add " + newname + " to this class? ");
           if (isYes(studentScanner.nextLine())){classes.get(findClass(input)).addStudent(localstudent);stop = true;localclass = classes.get(findClass(input));}else{System.out.print("Please try again: ");}
         }
         else{localclass = classes.get(findClass(input));stop = true;}
       }
     }
+      System.out.println(newname + "'s current grade for the class is \033[35m" + getClassGrade(localclass,localstudent) + "(" + localstudent.getLetterGrade(getClassGrade(localclass,localstudent)) + ")\033[0m.");
       System.out.print("In which assignment is the student's grade changing? ");
       stop = false;
       while (!stop){
         input = studentScanner.nextLine();
         if (-1 == findAssignment(localclass,input)){
-          System.out.print("Cannot find assignment. Please try again: ");
+          System.out.print("\033[31mCannot find assignment.\033[0m Please try again: ");
         }
         else{localassignment = localclass.getAssignments().get(findAssignment(localclass,input));stop = true;}
       }
-      localgrade = localstudent.getGrade(localclass, localassignment, localstudent);
-      if (localgrade == -1){System.out.print(localstudent.getName() + " does not have a grade for this assignment. New grade: ");}
+      localgrade = localstudent.getGrade(localclass, localassignment, localstudent, gradelist);
+      if (localgrade == -1.0){System.out.print("\033[31m" + newname + " does not have a grade for this assignment.\033[0m New grade: ");}
       else {
-      System.out.print(localstudent.getName() + "'s current grade in the " + localassignment.getName() + " assignment of " + localclass.getName() + " class is " + localgrade + ". New grade for this assignment: ");}
+      System.out.print(localstudent.getName() + "'s current grade in the " + localassignment.getName() + " assignment of " + localclass.getName() + " class is " + localgrade + " (" + localstudent.getLetterGrade(localgrade) + "). New grade for this assignment: ");}
       stop = false;
       input = studentScanner.nextLine();
-      if (isInt(input)){localstudent.setGrade(localclass,localassignment,localstudent,Integer.parseInt(input));stop = true;}
+      if (isDouble(input)){newgrade=Double.parseDouble(input);stop = true;}
       while (!stop){
-          System.out.print("Please enter a positive integer including or under 100: ");
+          System.out.print("\033[31mPlease enter a positive integer including or under 100:\033[0m ");
           input = studentScanner.nextLine();
-          if (isInt(input)){localstudent.setGrade(localclass,localassignment,localstudent,Integer.parseInt(input));stop = true;}
+          if (isDouble(input)){newgrade=Double.parseDouble(input);stop = true;}
         }
+      System.out.println("\033[32mAssignment grade was successfully changed from "+ localgrade + " to " + newgrade + ".\033[0m");
     }
   }
+  globalroster.get(findStudent(globalroster,localstudent.getName())).setName(newname);
+  localstudent.setGrade(localclass,localassignment,localstudent,newgrade);
 }
-public static boolean isInt(String str) { //Using a try catch to check if input is and int (and is positive)
+public static boolean isDouble(String str) { //Using a try catch to check if input is and int (and is positive)
   try {
-      int d = Integer.parseInt(str);
-      if (d > 0 && d < 101){
+      double d = Double.parseDouble(str);
+      if (d >= 0.0 && d <= 100.0){
       return true;
       }
       return false;
@@ -293,11 +302,34 @@ public static int findAssignmentType(Class c,String type){ //finds the index of 
   for (int i = 0; i < c.getAssignmentTypes().size(); i++){if (type.equalsIgnoreCase(c.getAssignmentTypes().get(i))){return i;}}
   return -1;
 } //finds the
-public static boolean isStudentinClass(String str, Student s){
-  for (Student stu : classes.get(findClass(str)).getRoster()){
-    if (s.getName().equalsIgnoreCase(stu.getName())){return true;}
+public static boolean isStudentinClass(String classname, String studentname){
+  for (Student stu : classes.get(findClass(classname)).getRoster()){
+    if (studentname.equalsIgnoreCase(stu.getName())){return true;}
   }
   return false;
+}
+public static double getClassGrade(Class c, Student s){
+  ArrayList<Double> weightedGradeAverages = new ArrayList<Double>();
+  double gradesum = 0.0;
+  int assignmentcount = 0;
+  int weightkeycounter = 0;
+  for (String type : c.getAssignmentTypes()){
+    gradesum = 0.0;
+    assignmentcount = 0;
+    for (Grade g : gradelist){
+    if ((g.getStudentName().equalsIgnoreCase(s.getName()) && g.getClassName().equalsIgnoreCase(c.getName()))&&(type.equals(g.getAssignment().getType()))){
+      gradesum += (double)g.getGrade();
+      assignmentcount++;
+    }
+  }
+  weightedGradeAverages.add(c.getAssignmentWeights().get(weightkeycounter) * 0.01 * (gradesum / assignmentcount));
+  weightkeycounter++;
+}
+  double total = 0.0;
+  for (Double d : weightedGradeAverages){
+    total += d;
+  }
+  return total;
 }
 public static void startup(){
   FileReader classReader = null;
@@ -323,7 +355,7 @@ public static void startup(){
   } catch (IOException e) {
   }
   if (fileFound){
-    startupAnimation(true);
+    // startupAnimation(true);
     while (classInput.hasNextLine()){
     String line = classInput.nextLine();
     String[] words = line.split(";");
@@ -371,7 +403,7 @@ try {
     assignmentReader.close();
     gradeReader.close();
 } catch (IOException e){
-    System.out.println("Error closing file: " + e);
+    System.out.println("\033[31mError closing file: " + e);
     System.exit(1);
 }
 } else {
@@ -392,49 +424,39 @@ public static void save(){
       classWriter = new FileWriter("ClassList.gdbk", false);
       classPrinter = new PrintWriter(classWriter);
   } catch (IOException e){
-      System.out.println("Error opening Class List file: " + e);
-      System.out.println("Could not save.");
+      System.out.println("\033[31mError opening Class List file: " + e);
+      System.out.println("Could not save.\033[0m");
   }
-  System.out.println("-classes-");
-  for (Class c : classes){classPrinter.println(c);System.out.println(c);}
-  System.out.println();
-  System.out.println("-students-");
+  for (Class c : classes){classPrinter.println(c);}
   try {
       studentWriter = new FileWriter("GlobalRoster.gdbk", false);
       studentPrinter = new PrintWriter(studentWriter);
   } catch (IOException e){
-      System.out.println("Error opening Global Roster file: " + e);
-      System.out.println("Could not save.");
+      System.out.println("\033[31mError opening Global Roster file: " + e);
+      System.out.println("Could not save.\033[0m");
   }
-  for (Student s : globalroster){studentPrinter.println(s);System.out.println(s);for (Grade g : s.getGradeList()){gradelist.add(g);}}
+  gradelist = new ArrayList<Grade>();
+for (Student s : globalroster){studentPrinter.println(s);for (Grade g : s.getGradeList()){gradelist.add(g);}}
   try {
       assignmentWriter = new FileWriter("AssignmentsList.gdbk", false);
       assignmentPrinter = new PrintWriter(assignmentWriter);
   } catch (IOException e){
-      System.out.println("Error opening Assignments List file: " + e);
-      System.out.println("Could not save.");
+      System.out.println("\033[31mError opening Assignments List file: " + e);
+      System.out.println("Could not save.\033[0m");
   }
-  System.out.println();
-  System.out.println("-assignments-");
   for (Class c : classes){
     for (int i = 0; i < c.getAssignments().size(); i++){
       assignmentPrinter.println(c.getAssignments().get(i));
-      System.out.println(c.getAssignments().get(i));
     }
   }
   try {
       gradeWriter = new FileWriter("Gradebook.gdbk", false);
       gradePrinter = new PrintWriter(gradeWriter);
   } catch (IOException e){
-      System.out.println("Error opening gradebook: " + e);
-      System.out.println("Could not save.");
+      System.out.println("\033[31mError opening gradebook: " + e);
+      System.out.println("Could not save.\033[0m");
   }
-  System.out.println();
-  System.out.println("-grades-");
-  for (Grade g : gradelist){
-    gradePrinter.println(g);
-    System.out.println(g);
-  }
+  for (Grade g : gradelist){gradePrinter.println(g);}
 
   try {
     classWriter.close();
@@ -445,29 +467,39 @@ public static void save(){
       System.out.println("Error closing file: " + e);
       System.exit(1);
   }
-  System.out.print("Saving");
-  randomizedLoadingDots();
-  System.out.println("Gradebook saved successfully.");
+  // System.out.print("Saving");
+  randomizedLoading("Saving");
+  System.out.println("\r\033[32mGradebook saved successfully.\033[0m");
 }
 public static void startupAnimation(boolean found){
-  System.out.println("*** Welcome to Gradebook! ***");
+  randomizedLoading("\033[36mStarting GradebookOS");
   try{Thread.sleep(500);} catch (Exception e) {}
-  System.out.print("Searching for files");
-  randomizedLoadingDots();
-  if (found){System.out.println("Input files detected.");} else {System.out.println("No gradebook files detected.");}
+  // System.out.print("Searching for files");
+  randomizedLoading("\033[0mSearching for input files");
+  if (found){System.out.println("\r\033[32mInput files detected.                  ");} else {System.out.println("\r\033[31mNo gradebook files detected.                 ");}
   try{Thread.sleep(3000);} catch (Exception e) {}
     System.out.println();
-  System.out.print("Loading Gradebook");
-  randomizedLoadingDots();
-  if(found){System.out.println("Gradebook successfully loaded.");}else{System.out.println("New gradebook successfully created.");}
-  System.out.println();
+  // System.out.print("Loading Gradebook");
+  randomizedLoading("\033[0mLoading Gradebook");
+  if(found){System.out.println("\r\033[32mGradebook successfully loaded. ");}else{System.out.println("\r\033[32mNew gradebook successfully created.");}
+  try{Thread.sleep(1000);} catch (Exception e) {}
+  System.out.print("\033[H\033[2J");
+  System.out.println("\033[36m*** Welcome to Gradebook! ***\033[0m");
+
 
 }
-public static void randomizedLoadingDots(){
-  for (int i = 0; i < 10; i++){
-   try{Thread.sleep((int)(Math.random() * 1000));} catch (Exception e) {} System.out.print(".");
+public static void randomizedLoading(String message){
+  String str = "";
+  int c = 0;
+  for (int i = 0; i < 11; i++){
+    try{Thread.sleep((int)(Math.random() * 1000));} catch (Exception e) {}
+      str = "\r" + message + ": [";
+      for (int a = 0; a < i; a++){str+="=";c=a;}
+    for (int b = 0; b < (9-c); b++){str+="-";}
+    str += "]";
+   System.out.print(str);
   }
-  System.out.println();
+  try{Thread.sleep(1000);} catch (Exception e) {}
 }
 public static void scannerLogic(Scanner s){}
 }

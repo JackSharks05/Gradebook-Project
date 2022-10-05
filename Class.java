@@ -31,6 +31,9 @@ public class Class{
   public void addStudent(Student s){roster.add(s);}
   public void removeStudent(int i){roster.remove(i);}
   public ArrayList<Student> getRoster(){return this.roster;}
+  public void changeStudentName(String oldname, String newname){
+    for (Student s : roster){if (s.getName().equalsIgnoreCase(oldname)){s.setName(newname);}}
+  }
   public void addAssignment(Assignment a){assignments.add(a);}
   public ArrayList<Assignment> getAssignments(){return this.assignments;}
   public int getAssignmentWeight(Assignment a){
@@ -38,6 +41,7 @@ public class Class{
     return -1;
   }
   public ArrayList<String> getAssignmentTypes(){return this.assignmentTypes;}
+  public ArrayList<Integer> getAssignmentWeights(){return this.assignmentWeights;}
   public Assignment findAssignment(String n){
     for (int i = 0; i < assignments.size(); i++){if (n.equals(assignments.get(i).getName())){return assignments.get(i);}}
     return (new Assignment());

@@ -4,8 +4,8 @@ public class Grade{
   Class localclass;
   Assignment localassignment;
   Student localstudent;
-  int grade;
-  public Grade(Class inputclass, Assignment inputassignment, Student inputstudent, int inputgrade){
+  double grade;
+  public Grade(Class inputclass, Assignment inputassignment, Student inputstudent, double inputgrade){
     this.localclass = inputclass;
     this.localassignment = inputassignment;
     this.localstudent = inputstudent;
@@ -13,8 +13,9 @@ public class Grade{
   }
   public Class getClassObject(){return this.localclass;}
   public String getClassName(){return this.localclass.getName();}
-  public int getGrade(){return this.grade;}
+  public Double getGrade(){return this.grade;}
   public String getAssignmentName(){return this.localassignment.getName();}
+  public Assignment getAssignment(){return this.localassignment;}
   public String getStudentName(){return this.localstudent.getName();}
   public String toString(){
     return this.localclass.getName() + ";" + this.localassignment.getName() + ";" + this.localstudent.getName() + ";" + this.grade;
