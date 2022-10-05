@@ -27,6 +27,7 @@ public class Student{
   public void setGrade(Class c, Assignment a, Student s, int g){
     grade.add(new Grade(c, a, s, g));
   }
+  public ArrayList<Grade> getGradeList(){return this.grade;}
   public int getGrade(Class c, Assignment a, Student s){
     for (Grade g : grade){
       if ((g.getClassName().equals(c.getName())) && (g.getAssignmentName().equals(findAssignment(c,g.getAssignmentName())))){

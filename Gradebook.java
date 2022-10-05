@@ -1,20 +1,21 @@
 import java.io.*;
 import java.util.*;
 public class Gradebook{
+  private static final Object lock = new Object();
   public static ArrayList<Student> globalroster;
   public static ArrayList<Class> classes;
   public static ArrayList<Grade> gradelist;
   public static void main(String[] args){globalroster = new ArrayList<Student>();classes = new ArrayList<Class>();gradelist = new ArrayList<Grade>();startGUI(false);}
 public static boolean isYes(String input){
   String[] yes = {"Y","sure","ok"};
-  if ((input.toUpperCase()).startsWith("N")){return false;}
+  if ((input.toUpperCase()).startsWith("N") || input.equalsIgnoreCase("stop")){return false;}
   else {
     for (String y : yes){if (input.equalsIgnoreCase(y)||input.toUpperCase().startsWith((y.charAt(0)+"").toUpperCase())){return true;}}
   }
   return false;
 }
 public static void startGUI(boolean repeating){
-  if (!repeating){startup();}
+  if (!repeating){System.out.print("\033[H\033[2J");startup();}
   Scanner guiScanner = new Scanner(System.in);
   System.out.print("Would you like to make a new class? ");
   if (isYes(guiScanner.nextLine())){classCreateGUI("");}
@@ -25,11 +26,11 @@ public static void startGUI(boolean repeating){
   System.out.print("Would you like to edit a class? ");
   if (isYes(guiScanner.nextLine())){classEditGUI();}
   System.out.print("Would you like to edit a student? ");
-  if (isYes(guiScanner.nextLine())){studentEditGUI();}
+  if (isYes(guiScanner.nextLine())){studentEditGUI(new Class());}
   System.out.print("Anything else? ");
   if (isYes(guiScanner.nextLine())){startGUI(true);} else {
   System.out.print("Would you like to save all changes made? ");
-  if (isYes(guiScanner.nextLine())){save();System.out.print("Saving");for (int i = 0; i < 4; i++){System.out.print(".");}System.out.println(" Saved.");}
+  if (isYes(guiScanner.nextLine())){save();}
   System.exit(1);
 }
 }
@@ -192,11 +193,12 @@ public static void classEditGUI(){
   }
 
 }
-public static void studentEditGUI(){
+public static void studentEditGUI(Class c){
   Scanner studentScanner = new Scanner(System.in);
   Student localstudent = new Student();
-  Class localclass = new Class();
+  Class localclass = c;
   Assignment localassignment = new Assignment();
+  int localgrade = -1;
   System.out.print("Which student would you like to edit? ");
   boolean stop = false;
   boolean creatingStudent = false;
@@ -213,36 +215,50 @@ public static void studentEditGUI(){
   if (creatingStudent){studentCreateGUI(input);} else {
     System.out.print("Would you like to change the name of the student? ");
     if (isYes(studentScanner.nextLine())){
+      stop = false;
       System.out.print("Current name: " + localstudent.getName() +". New name: ");
-      input = studentScanner.nextLine();
-      localstudent.setName(input);
+      while (!stop){
+        input = studentScanner.nextLine();
+        if (findStudent(globalroster,input) == -1){localstudent.setName(input);stop = true;}
+        else {System.out.println("Student with this name already exists. Please use a different name: ");}
+      }
     }
     System.out.print("Would you like to edit the student's grade? ");
     if (isYes(studentScanner.nextLine())){
+      if (!(localclass.equals(new Class()))){
       System.out.print("For which class is the student's grade changing? ");
       stop = false;
       while (!stop){
         input = studentScanner.nextLine();
         if (-1 == findClass(input)){
-          System.out.print("Cannot find class. Please try again ");
+          System.out.print("Cannot find class. Please try again: ");
+        } else if (!(isStudentinClass(input,localstudent))){
+          System.out.print("Student is not in class. Would you like to add " + localstudent.getName() + " to this class? ");
+          if (isYes(studentScanner.nextLine())){classes.get(findClass(input)).addStudent(localstudent);stop = true;localclass = classes.get(findClass(input));}else{System.out.print("Please try again: ");}
         }
         else{localclass = classes.get(findClass(input));stop = true;}
       }
+    }
       System.out.print("In which assignment is the student's grade changing? ");
       stop = false;
       while (!stop){
         input = studentScanner.nextLine();
         if (-1 == findAssignment(localclass,input)){
-          System.out.print("Cannot find assignment. Please try again ");
+          System.out.print("Cannot find assignment. Please try again: ");
         }
         else{localassignment = localclass.getAssignments().get(findAssignment(localclass,input));stop = true;}
       }
-      System.out.print(localstudent.getName() + "'s current grade in the " + localassignment.getName() + " assignment of " + localclass.getName() + " class is " + localstudent.getGrade(localclass, localassignment, localstudent) + ". New grade for this assignment: ");
-      boolean valid = false;
-      while (!valid){
-          System.out.print("Please enter a valid positive integer for the grade: ");
+      localgrade = localstudent.getGrade(localclass, localassignment, localstudent);
+      if (localgrade == -1){System.out.print(localstudent.getName() + " does not have a grade for this assignment. New grade: ");}
+      else {
+      System.out.print(localstudent.getName() + "'s current grade in the " + localassignment.getName() + " assignment of " + localclass.getName() + " class is " + localgrade + ". New grade for this assignment: ");}
+      stop = false;
+      input = studentScanner.nextLine();
+      if (isInt(input)){localstudent.setGrade(localclass,localassignment,localstudent,Integer.parseInt(input));stop = true;}
+      while (!stop){
+          System.out.print("Please enter a positive integer including or under 100: ");
           input = studentScanner.nextLine();
-          if (isInt(input)){localstudent.setGrade(localclass,localassignment,localstudent,Integer.parseInt(input));valid = true;}
+          if (isInt(input)){localstudent.setGrade(localclass,localassignment,localstudent,Integer.parseInt(input));stop = true;}
         }
     }
   }
@@ -250,7 +266,7 @@ public static void studentEditGUI(){
 public static boolean isInt(String str) { //Using a try catch to check if input is and int (and is positive)
   try {
       int d = Integer.parseInt(str);
-      if (d > 0){
+      if (d > 0 && d < 101){
       return true;
       }
       return false;
@@ -269,7 +285,7 @@ public static int findAssignment(Class c,String name){
   return -1;
 } //finds the index of an assignment within a class's assignment array given the assignment's name
 public static int findStudent(ArrayList<Student> roster,String name){ //finds the index of a student within a given roster given the student's name
-  for (int i = 0; i < roster.size(); i++){if (name.equals(roster.get(i).getName())){return i;}}
+  for (int i = 0; i < roster.size(); i++){if (name.equalsIgnoreCase(roster.get(i).getName())){return i;}}
   return -1;
 } //finds the index of a student within a class's roster given the student's
 public static int findAssignmentType(Class c,String type){ //finds the index of the assignment type within a class's assignmenttypes array
@@ -277,6 +293,12 @@ public static int findAssignmentType(Class c,String type){ //finds the index of 
   for (int i = 0; i < c.getAssignmentTypes().size(); i++){if (type.equalsIgnoreCase(c.getAssignmentTypes().get(i))){return i;}}
   return -1;
 } //finds the
+public static boolean isStudentinClass(String str, Student s){
+  for (Student stu : classes.get(findClass(str)).getRoster()){
+    if (s.getName().equalsIgnoreCase(stu.getName())){return true;}
+  }
+  return false;
+}
 public static void startup(){
   FileReader classReader = null;
   Scanner classInput = null;
@@ -301,6 +323,7 @@ public static void startup(){
   } catch (IOException e) {
   }
   if (fileFound){
+    startupAnimation(true);
     while (classInput.hasNextLine()){
     String line = classInput.nextLine();
     String[] words = line.split(";");
@@ -351,7 +374,9 @@ try {
     System.out.println("Error closing file: " + e);
     System.exit(1);
 }
-  }
+} else {
+  startupAnimation(false);
+}
 
 }
 public static void save(){
@@ -370,9 +395,10 @@ public static void save(){
       System.out.println("Error opening Class List file: " + e);
       System.out.println("Could not save.");
   }
+  System.out.println("-classes-");
   for (Class c : classes){classPrinter.println(c);System.out.println(c);}
   System.out.println();
-  System.out.println();
+  System.out.println("-students-");
   try {
       studentWriter = new FileWriter("GlobalRoster.gdbk", false);
       studentPrinter = new PrintWriter(studentWriter);
@@ -380,7 +406,7 @@ public static void save(){
       System.out.println("Error opening Global Roster file: " + e);
       System.out.println("Could not save.");
   }
-  for (Student s : globalroster){studentPrinter.println(s);System.out.println(s);}
+  for (Student s : globalroster){studentPrinter.println(s);System.out.println(s);for (Grade g : s.getGradeList()){gradelist.add(g);}}
   try {
       assignmentWriter = new FileWriter("AssignmentsList.gdbk", false);
       assignmentPrinter = new PrintWriter(assignmentWriter);
@@ -389,7 +415,7 @@ public static void save(){
       System.out.println("Could not save.");
   }
   System.out.println();
-  System.out.println();
+  System.out.println("-assignments-");
   for (Class c : classes){
     for (int i = 0; i < c.getAssignments().size(); i++){
       assignmentPrinter.println(c.getAssignments().get(i));
@@ -404,9 +430,9 @@ public static void save(){
       System.out.println("Could not save.");
   }
   System.out.println();
-  System.out.println();
+  System.out.println("-grades-");
   for (Grade g : gradelist){
-    assignmentPrinter.println(g);
+    gradePrinter.println(g);
     System.out.println(g);
   }
 
@@ -419,5 +445,29 @@ public static void save(){
       System.out.println("Error closing file: " + e);
       System.exit(1);
   }
+  System.out.print("Saving");
+  randomizedLoadingDots();
+  System.out.println("Gradebook saved successfully.");
 }
+public static void startupAnimation(boolean found){
+  System.out.println("*** Welcome to Gradebook! ***");
+  try{Thread.sleep(500);} catch (Exception e) {}
+  System.out.print("Searching for files");
+  randomizedLoadingDots();
+  if (found){System.out.println("Input files detected.");} else {System.out.println("No gradebook files detected.");}
+  try{Thread.sleep(3000);} catch (Exception e) {}
+    System.out.println();
+  System.out.print("Loading Gradebook");
+  randomizedLoadingDots();
+  if(found){System.out.println("Gradebook successfully loaded.");}else{System.out.println("New gradebook successfully created.");}
+  System.out.println();
+
+}
+public static void randomizedLoadingDots(){
+  for (int i = 0; i < 10; i++){
+   try{Thread.sleep((int)(Math.random() * 1000));} catch (Exception e) {} System.out.print(".");
+  }
+  System.out.println();
+}
+public static void scannerLogic(Scanner s){}
 }
