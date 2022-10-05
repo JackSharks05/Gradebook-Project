@@ -9,6 +9,10 @@ public class Student{
     this.classList = new ArrayList<Class>();
     this.grade = new ArrayList<Grade>();
   }
+  public Student(String name, Class c){
+    this.name = name;
+    this.classList.add(c);
+  }
   public Student(String name, ArrayList<Class> classes){
     this.name = name;
     this.classList = classes;
@@ -31,6 +35,7 @@ public class Student{
     }
     return -1;
   }
+  public void addGrade(Grade g){this.grade.add(g);}
   public void addClass(Class c){this.classList.add(c);}
   public void setClassList(ArrayList<Class> classes){this.classList = classes;}
   public String getName(){return this.name;}

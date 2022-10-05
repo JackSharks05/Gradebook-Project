@@ -15,6 +15,7 @@ public class Grade{
   public String getClassName(){return this.localclass.getName();}
   public int getGrade(){return this.grade;}
   public String getAssignmentName(){return this.localassignment.getName();}
+  public String getStudentName(){return this.localstudent.getName();}
   public String toString(){
     return this.localclass.getName() + ";" + this.localassignment.getName() + ";" + this.localstudent.getName() + ";" + this.grade;
   }

@@ -57,8 +57,10 @@ public static void classCreateGUI(String name){//create class
   while (!stop){
     input = classScanner.nextLine();
     if (input.equalsIgnoreCase("stop")){stop = true;}
-    else if (findStudent(input) != -1){localroster.add(globalroster.get(findStudent(input)));globalroster.get(findStudent(input)).addClass(classes.get(findClass(localname)));}
-    else if (findStudentInClass(localroster,input) == -1){Student newStudent = new Student(input);localroster.add(newStudent);globalroster.add(newStudent);}
+    else if (findStudent(globalroster,input) != -1){
+      localroster.add(globalroster.get(findStudent(globalroster,input)));
+      }
+    else if (findStudent(localroster,input) == -1){Student newStudent = new Student(input);localroster.add(newStudent);globalroster.add(newStudent);}
     else {System.out.print("Student already exists in class. Please find a different student: ");}
   }
   System.out.println("List assignment types (type, weight):");
@@ -80,6 +82,7 @@ public static void classCreateGUI(String name){//create class
     if (counter == 100){stop = true;}
   }
   classes.add(new Class(localname,localroster,localassignmentsandweights));
+  for (Student s : localroster){globalroster.get(findStudent(globalroster,s.getName())).addClass(classes.get(findClass(localname)));}
   System.out.print("Class " + localname + " is made. Would you like to make another class? ");
   if(!isYes(classScanner.nextLine())){done = true;}
   }
@@ -96,7 +99,7 @@ public static void studentCreateGUI(String externalinput){
     System.out.print("Student name: ");
     while (!stop){
       input = studentScanner.nextLine();
-      if (findStudent(input) == -1){name = input;stop = true;}
+      if (findStudent(globalroster,input) == -1){name = input;stop = true;}
       else {System.out.println("Student already exists. Please use a different name: ");}
     }
   }
@@ -108,7 +111,9 @@ public static void studentCreateGUI(String externalinput){
       else if (findClass(input) == -1){System.out.println("Could not find class. Please try again: ");}
       else {classList.add(classes.get(findClass(input)));}
     }
-    globalroster.add(new Student(name, classList));
+    Student newStudent = new Student(name, classList);
+    globalroster.add(newStudent);
+    for (Class c : classList){c.addStudent(newStudent);}
     System.out.print("Student " + name + " is made. Would you like to make another student? ");
     if(!isYes(studentScanner.nextLine())){done = true;}
   }
@@ -177,7 +182,7 @@ public static void classEditGUI(){
       for (Student s : localclass.getRoster()){
         System.out.print("Remove " + s.getSurname() + ", " + s.getFirstName() + "? ");
         if (isYes(classScanner.nextLine())){
-          localclass.removeStudent(findStudentInClass(localclass.getRoster(),s.getName()));
+          localclass.removeStudent(findStudent(localclass.getRoster(),s.getName()));
         }
       }
     }
@@ -198,12 +203,12 @@ public static void studentEditGUI(){
   String input = "";
   while (!stop){
     input = studentScanner.nextLine();
-    if (-1 == findStudent(input)){
+    if (-1 == findStudent(globalroster,input)){
       System.out.print("Cannot find student. Would you like to create a new student of this name?: ");
       creatingStudent = isYes(studentScanner.nextLine());
       if (creatingStudent){stop = true;}else{System.out.print("Which student would you like to edit? ");}
     }
-    else{localstudent = globalroster.get(findStudent(input));stop = true;}
+    else{localstudent = globalroster.get(findStudent(globalroster,input));stop = true;}
   }
   if (creatingStudent){studentCreateGUI(input);} else {
     System.out.print("Would you like to change the name of the student? ");
@@ -257,26 +262,21 @@ public static int findClass(String name){
   if (classes.size() == 0){return -1;}
   for (int i = 0; i < classes.size(); i++){if (name.equalsIgnoreCase((classes.get(i)).getName())){return i;}}
   return -1;
-}
+} //finds the index of the class within the global classes array given the class's name
 public static int findAssignment(Class c,String name){
   if (c.getAssignments().size() == 0){return -1;}
   for (int i = 0; i < c.getAssignments().size(); i++){if (name.equals(c.getAssignments().get(i).getName())){return i;}}
   return -1;
-}
-public static int findStudent(String name){
-  if (globalroster.size() == 0){return -1;}
-  for (int i = 0; i < globalroster.size(); i++){if (name.equals(globalroster.get(i).getName())){return i;}}
-  return -1;
-}
-public static int findStudentInClass(ArrayList<Student> roster,String name){
+} //finds the index of an assignment within a class's assignment array given the assignment's name
+public static int findStudent(ArrayList<Student> roster,String name){ //finds the index of a student within a given roster given the student's name
   for (int i = 0; i < roster.size(); i++){if (name.equals(roster.get(i).getName())){return i;}}
   return -1;
-}
-public static int findAssignmentType(Class c,String type){
+} //finds the index of a student within a class's roster given the student's
+public static int findAssignmentType(Class c,String type){ //finds the index of the assignment type within a class's assignmenttypes array
   if (c.getAssignmentTypes().size() == 0){return -1;}
   for (int i = 0; i < c.getAssignmentTypes().size(); i++){if (type.equalsIgnoreCase(c.getAssignmentTypes().get(i))){return i;}}
   return -1;
-}
+} //finds the
 public static void startup(){
   FileReader classReader = null;
   Scanner classInput = null;
@@ -320,7 +320,7 @@ public static void startup(){
   String[] classnamesList = words[1].split(",");
   ArrayList<Class> localclasslist = new ArrayList<Class>();
   for (String a : classnamesList){localclasslist.add(classes.get(findClass(a)));}
-  globalroster.add(new Student(words[0], localclasslist, Double.parseDouble(words[2])));
+  globalroster.add(new Student(words[0], localclasslist));
 }
 while (assignmentInput.hasNextLine()){
   String line = assignmentInput.nextLine();
@@ -333,9 +333,14 @@ while (gradeInput.hasNextLine()){
   gradelist.add(new Grade(
   classes.get(findClass(words[0])),
   classes.get(findClass(words[0])).getAssignments().get(findAssignment(classes.get(findClass(words[0])),words[1])),
-  globalroster.get(findStudent(words[2])),
+  globalroster.get(findStudent(globalroster,words[2])),
   Integer.parseInt(words[3])
   ));
+}
+for (Grade g : gradelist){
+  if (findStudent(globalroster,g.getStudentName()) != -1){
+    globalroster.get(findStudent(globalroster,g.getStudentName())).addGrade(g);
+  }
 }
 try {
     classReader.close();
