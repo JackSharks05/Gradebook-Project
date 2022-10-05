@@ -355,7 +355,7 @@ public static void startup(){
   } catch (IOException e) {
   }
   if (fileFound){
-    // startupAnimation(true);
+    startupAnimation(true);
     while (classInput.hasNextLine()){
     String line = classInput.nextLine();
     String[] words = line.split(";");
