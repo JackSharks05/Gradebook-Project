@@ -27,21 +27,8 @@ public class Student{
     grade.add(new Grade(c, a, s, g));
   }
   public ArrayList<Grade> getGradeList(){return this.grade;}
-  // public double getGrade(Class c, Assignment a, Student s){
-  //   for (Grade g : grade){
-  //     if ((g.getClassName().equals(c.getName())) && (g.getAssignmentName().equals(findAssignment(c,g.getAssignmentName())))){
-  //       return g.getGrade();
-  //     }
-  //   }
-  //   return -1;
-  // }
   public double getGrade(Class c, Assignment a, Student s, ArrayList<Grade> gl){
     for (Grade g : gl){
-      //
-      // System.out.println(g);
-      // if ((g.getClassName().equals(c.getName())) && (g.getAssignmentName().equals(findAssignment(c,g.getAssignmentName())))){
-      //   return g.getGrade();
-      // }
       String[] words = g.toString().split(";");
       if (words[0].equals(c.getName()) && words[1].equals(a.getName()) && words[2].equals(s.getName())){
         return Double.parseDouble(words[3]);
@@ -51,7 +38,9 @@ public class Student{
   }
   public void addGrade(Grade g){this.grade.add(g);}
   public void addClass(Class c){this.classList.add(c);}
+  public void removeClass(String i){for (Class c : classList){if (c.getName().equalsIgnoreCase(i)){this.classList.remove(i);}}}
   public void setClassList(ArrayList<Class> classes){this.classList = classes;}
+  public ArrayList<Class> getClassList(){return this.classList;}
   public String getName(){return this.name;}
   public void setName(String input){this.name = input;}
   public String getFirstName(){return (this.name).substring(0,(this.name).indexOf(" "));}

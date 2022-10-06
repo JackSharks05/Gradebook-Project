@@ -48,7 +48,11 @@ public class Class{
   }
   public String toString(){
     String str = this.name + ";";
-    for (int s = 0; s < roster.size(); s++){str += (roster.get(s).getName() + ",");}
+    for (int s = 0; s < roster.size(); s++){
+      if (!(roster.get(s).getName().equalsIgnoreCase("stop"))){
+      str += (roster.get(s).getName() + ",");
+    }
+    }
     str += ";";
     for (int a = 0; a < assignmentsandweights.size(); a++){str += (assignmentsandweights.get(a) + "-");}
     return str.substring(0, str.length() - 1);
