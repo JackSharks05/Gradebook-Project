@@ -477,7 +477,7 @@ public static void startup(){
      fileFound = true;
   } catch (IOException e) {
   }
-  if (true){
+  if (fileFound){
     while (classInput.hasNextLine()){
     String line = classInput.nextLine();
     String[] words = line.split(";");
