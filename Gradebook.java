@@ -129,6 +129,10 @@ public static void classCreateGUI(String name){
 public static void studentCreateGUI(String externalinput){
   System.out.print("\033[H\033[2J\033[0m");
   Scanner studentScanner = new Scanner(System.in);
+  if (classes.size() == 0){
+    System.out.print("\033[31mYou cannot create a student without having created a class first. \033[0mWould you like to make a new class? ");
+    if (isYes(studentScanner.nextLine())){classCreateGUI("");}
+  } else {
   boolean done = false;
     while (!done){
     String name = externalinput;
@@ -157,6 +161,7 @@ public static void studentCreateGUI(String externalinput){
     for (Class c : classList){c.addStudent(newStudent);}
     System.out.print("\033[32mStudent " + name + " is made.\033[0m Would you like to make another student? ");
     if(!isYes(studentScanner.nextLine())){done = true;}else{externalinput = "";}
+  }
   }
 }
 //The assignmentGUI creates a new assignment with its name, weight, and class it's in.
@@ -427,7 +432,7 @@ public static boolean isStudentinClass(String classname, ArrayList<Class> classL
 //The doesTypeExist method determines whether an assignment type exists given the type's name and an class's assignment weightkey
 public static boolean doesTypeExist(ArrayList<String> weightkey, String type){
   for (String s : weightkey){
-    if (type.substring(0,s.indexOf(",")).equalsIgnoreCase(s.substring(0,s.indexOf(",")))){return true;}
+    if (type.substring(0,type.indexOf(",")).equalsIgnoreCase(s.substring(0,s.indexOf(",")))){return true;}
   }
   return false;
 }
@@ -455,8 +460,12 @@ public static double getClassGrade(Student s, String classname){
     total += d;
   }
   String str = total + "";
+  try {
   if (str.substring(str.indexOf(".")+1,str.length()).length() > 2){return Double.parseDouble(str.substring(0,str.indexOf(".") + 3));}
   return Double.parseDouble(str);
+  } catch (NumberFormatException e){
+    return 1.0 / 0.0;
+  }
 }
 //The startup function calls the startupAnimation method but more importantly reads the files (if they exist) and insert the data into the global variables.
 public static void startup(){
@@ -526,9 +535,9 @@ try {
     System.out.println("\033[31mError closing file: " + e);
     System.exit(1);
 }
-  startupAnimation(true);
+  // startupAnimation(true);
 } else {
-  startupAnimation(false);
+  // startupAnimation(false);
 }
 
 }

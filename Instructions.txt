@@ -1,0 +1,43 @@
+Jack de Haan
+Mr. Cruté
+AT1 - E
+October 7, 2022
+
+-Instructions-
+The main screen gives you 6 options (0-5):
+1. Make a new Class
+This is often the first function you'll do. You'll be prompted to give:
+The class name (Can be whatever, but cannot include commas, semicolons, or dashes)
+List of any students in the class (if the student doesn't exist, it will create a student of the name)
+The types and weights of assignments (In the format of "type,weight" where type is a String and weight is an int)
+Then, you'll be prompted to repeat the process again. If you don't want to, you'll return to the main screen.
+2. Make a new Student
+Note: you cannot make a new student if you haven't created any classes.
+You'll be prompted to give:
+The student name (cannot include semicolons or commas) - [if the student already exists, you'll have to try again]
+List of all the classes they are in (only if the class exists) - and you must include at least one class
+Then, you'll be prompted to repeat the process again. If you don't want to, you'll return to the main screen.
+3. Make a new assignment
+Note: you cannot make a new assignment if you haven't created any classes.
+You'll be prompted to give:
+Which class the assignment is in
+The assignment name (no semicolons or commas)
+The assignment type (has to exist within the given class)
+Then, you'll be prompted to repeat the process again. If you don't want to, you'll return to the main screen.
+4. Edit a class
+You'll have to provide the name of the class you're editing. Then, you're allowed to:
+Change the name of the class
+Add students (the program will list the students that exist and that are not currently in the class)
+Remove students (the program will list the students that are in the class)
+Then, you'll be prompted to repeat the process again. If you don't want to, you'll return to the main screen.
+5. Edit a student
+You'll have to provide the name of the student you're editing. Then, you're allowed to:
+Change the name of the student
+Edit the student's grade:
+- You'll have to provide:
+    - Which class to change grade
+    - Which assignment within that class to change grade
+    - New grade to change
+
+0. Quit the program
+You're given the choice to save changes made.
